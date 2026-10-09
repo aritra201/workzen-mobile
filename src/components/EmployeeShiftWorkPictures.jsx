@@ -8,6 +8,7 @@ import {
 import { getShiftWorkPictureUrls } from '../utils/workPictures';
 import { pickImageFromLibrary, pickImagesFromLibrary } from '../utils/pickImage';
 import { useThemedStyles } from '../theme/useThemedStyles';
+import WorkPictureLightbox from './WorkPictureLightbox';
 
 export const MAX_SHIFT_WORK_PICTURES = 10;
 
@@ -25,6 +26,7 @@ export default function EmployeeShiftWorkPictures({
   const styles = useThemedStyles(createStyles);
   const pictureUrls = getShiftWorkPictureUrls(shift);
   const [replacingUrl, setReplacingUrl] = useState(null);
+  const [previewIndex, setPreviewIndex] = useState(null);
 
   async function run(action) {
     onError('');
@@ -74,7 +76,13 @@ export default function EmployeeShiftWorkPictures({
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.row}>
         {pictureUrls.map((url, index) => (
           <View key={`${url}-${index}`} style={styles.thumbWrap}>
-            <Image source={{ uri: url }} style={styles.thumb} />
+            <Pressable
+              onPress={() => setPreviewIndex(index)}
+              accessibilityLabel="View work photo"
+              style={styles.thumbTap}
+            >
+              <Image source={{ uri: url }} style={styles.thumb} />
+            </Pressable>
             {!disabled ? (
               <>
                 <Pressable
@@ -115,6 +123,12 @@ export default function EmployeeShiftWorkPictures({
           Maximum {MAX_SHIFT_WORK_PICTURES} photos per shift. Remove or replace one to change.
         </Text>
       ) : null}
+      <WorkPictureLightbox
+        visible={previewIndex != null}
+        urls={pictureUrls}
+        initialIndex={previewIndex ?? 0}
+        onClose={() => setPreviewIndex(null)}
+      />
     </View>
   );
 }
@@ -140,6 +154,7 @@ function createStyles(colors) {
       borderWidth: 1,
       borderColor: colors.outlineVariant,
     },
+    thumbTap: { width: '100%', height: '100%' },
     thumb: { width: '100%', height: '100%' },
     removeBtn: {
       position: 'absolute',
