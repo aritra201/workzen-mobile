@@ -11,7 +11,7 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#00685f"
+      "backgroundColor": "#0b1628"
     },
     "ios": {
       "supportsTablet": true,
@@ -21,7 +21,7 @@
       "package": "com.workzen.mobile",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#00685f"
+        "backgroundColor": "#0b1628"
       }
     },
     "plugins": ["expo-router", "expo-secure-store", "@react-native-community/datetimepicker"],
