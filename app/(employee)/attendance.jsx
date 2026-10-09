@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { Text } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { getTodayAttendance } from '../../src/api/attendance';
 import { listMarkAttendanceShiftItems } from '../../src/utils/attendanceUi';
@@ -9,10 +9,11 @@ import EmployeeShiftCard from '../../src/components/EmployeeShiftCard';
 import LoadingState from '../../src/components/LoadingState';
 import FormError from '../../src/components/FormError';
 import PrimaryButton from '../../src/components/PrimaryButton';
-import { colors } from '../../src/theme/colors';
+import { useThemedStyles } from '../../src/theme/useThemedStyles';
 
 export default function EmployeeAttendanceScreen() {
   const router = useRouter();
+  const styles = useThemedStyles(createStyles);
   const [record, setRecord] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -73,6 +74,8 @@ export default function EmployeeAttendanceScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  locked: { fontSize: 13, color: colors.onSurfaceVariant, marginTop: 8, marginBottom: 12 },
-});
+function createStyles(colors) {
+  return {
+    locked: { fontSize: 13, color: colors.onSurfaceVariant, marginTop: 8, marginBottom: 12 },
+  };
+}

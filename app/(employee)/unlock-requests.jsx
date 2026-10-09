@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { listMyAttendance } from '../../src/api/attendance';
 import {
@@ -16,11 +16,12 @@ import PrimaryButton from '../../src/components/PrimaryButton';
 import StatusChip from '../../src/components/StatusChip';
 import LoadingState from '../../src/components/LoadingState';
 import FormError from '../../src/components/FormError';
-import { colors } from '../../src/theme/colors';
 import { useToast } from '../../src/context/ToastContext';
+import { useThemedStyles } from '../../src/theme/useThemedStyles';
 
 export default function EmployeeUnlockRequestsScreen() {
   const { showSuccess, showError } = useToast();
+  const styles = useThemedStyles(createStyles);
   const [attendanceRows, setAttendanceRows] = useState([]);
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -170,18 +171,26 @@ export default function EmployeeUnlockRequestsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  sectionTitle: { fontSize: 17, fontWeight: '600', color: colors.onSurface, marginTop: 16, marginBottom: 8 },
-  card: {
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: colors.outlineVariant,
-    gap: 8,
-  },
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
-  date: { fontSize: 16, fontWeight: '600', color: colors.onSurface },
-  empty: { fontSize: 14, color: colors.onSurfaceVariant, marginBottom: 12 },
-});
+function createStyles(colors) {
+  return {
+    sectionTitle: {
+      fontSize: 17,
+      fontWeight: '600',
+      color: colors.onSurface,
+      marginTop: 16,
+      marginBottom: 8,
+    },
+    card: {
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: 14,
+      marginBottom: 10,
+      borderWidth: 1,
+      borderColor: colors.outlineVariant,
+      gap: 8,
+    },
+    row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
+    date: { fontSize: 16, fontWeight: '600', color: colors.onSurface },
+    empty: { fontSize: 14, color: colors.onSurfaceVariant, marginBottom: 12 },
+  };
+}

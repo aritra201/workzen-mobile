@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { confirmShift, updateShiftDetails } from '../api/attendance';
 import EmployeeShiftWorkPictures from './EmployeeShiftWorkPictures';
 import { getSubmitGeoLocation } from '../utils/geolocation';
@@ -14,8 +14,8 @@ import PrimaryButton from './PrimaryButton';
 import TextField from './TextField';
 import StatusChip from './StatusChip';
 import FormError from './FormError';
-import { colors } from '../theme/colors';
 import { useToast } from '../context/ToastContext';
+import { useThemedStyles } from '../theme/useThemedStyles';
 
 function statusTone(status, locked) {
   if (locked) return 'locked';
@@ -34,6 +34,7 @@ export default function EmployeeShiftCard({
   onUpdated,
 }) {
   const { showSuccess, showError } = useToast();
+  const styles = useThemedStyles(createStyles);
   const [comment, setComment] = useState(shift?.comment ?? '');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -131,18 +132,20 @@ export default function EmployeeShiftCard({
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: colors.outlineVariant,
-    gap: 8,
-  },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 },
-  title: { fontSize: 16, fontWeight: '600', color: colors.onSurface, flex: 1 },
-  amount: { fontSize: 15, color: colors.onSurfaceVariant },
-  hint: { fontSize: 13, color: colors.onSurfaceVariant },
-});
+function createStyles(colors) {
+  return {
+    card: {
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: 16,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: colors.outlineVariant,
+      gap: 8,
+    },
+    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 },
+    title: { fontSize: 16, fontWeight: '600', color: colors.onSurface, flex: 1 },
+    amount: { fontSize: 15, color: colors.onSurfaceVariant },
+    hint: { fontSize: 13, color: colors.onSurfaceVariant },
+  };
+}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   acceptEmployeeInvitation,
@@ -18,7 +18,7 @@ import FormError from '../../components/FormError';
 import LoadingState from '../../components/LoadingState';
 import { homeRouteForRole, pickPrimaryMembership } from '../../utils/membership';
 import { useToast } from '../../context/ToastContext';
-import { colors } from '../../theme/colors';
+import { useThemedStyles } from '../../theme/useThemedStyles';
 
 export default function InviteAcceptScreen({ kind }) {
   const { token } = useLocalSearchParams();
@@ -26,6 +26,7 @@ export default function InviteAcceptScreen({ kind }) {
   const router = useRouter();
   const { loginWithTokens } = useAuth();
   const { showSuccess, showError } = useToast();
+  const styles = useThemedStyles(createStyles);
   const [preview, setPreview] = useState(null);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -122,19 +123,21 @@ export default function InviteAcceptScreen({ kind }) {
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    marginTop: 16,
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: colors.outlineVariant,
-  },
-  title: { fontSize: 22, fontWeight: '700', color: colors.onSurface, marginBottom: 12 },
-  body: { fontSize: 15, color: colors.onSurfaceVariant, marginBottom: 16, lineHeight: 22 },
-  strong: { fontWeight: '600', color: colors.onSurface },
-  note: { marginTop: 16, fontSize: 12, color: colors.onSurfaceVariant, lineHeight: 18 },
-  error: { color: colors.error, fontSize: 16, marginTop: 24 },
-  hint: { color: colors.onSurfaceVariant, marginTop: 8 },
-});
+function createStyles(colors) {
+  return {
+    card: {
+      marginTop: 16,
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: 20,
+      borderWidth: 1,
+      borderColor: colors.outlineVariant,
+    },
+    title: { fontSize: 22, fontWeight: '700', color: colors.onSurface, marginBottom: 12 },
+    body: { fontSize: 15, color: colors.onSurfaceVariant, marginBottom: 16, lineHeight: 22 },
+    strong: { fontWeight: '600', color: colors.onSurface },
+    note: { marginTop: 16, fontSize: 12, color: colors.onSurfaceVariant, lineHeight: 18 },
+    error: { color: colors.error, fontSize: 16, marginTop: 24 },
+    hint: { color: colors.onSurfaceVariant, marginTop: 8 },
+  };
+}
