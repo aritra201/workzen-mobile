@@ -98,6 +98,7 @@ export default function EmployeeAttendanceHistoryScreen() {
           scrollEnabled={false}
           renderItem={({ item }) => (
             <AttendanceRowCard
+              variant="employee"
               row={item}
               onPress={() =>
                 router.push({
