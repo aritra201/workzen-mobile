@@ -30,6 +30,11 @@ import LoadingState from '../../components/LoadingState';
 import FormError from '../../components/FormError';
 import { useThemedStyles } from '../../theme/useThemedStyles';
 import { useToast } from '../../context/ToastContext';
+import {
+  formatCommentThreadAuthorRole,
+  getCommentThreadForShiftKey,
+  getCommentThreadReplies,
+} from '../../utils/commentThreads';
 
 function getRecordEmployeeName(record) {
   return record?.employee?.name ?? record?.employeeName ?? 'You';
@@ -54,7 +59,32 @@ function buildShiftEntries(shifts) {
   return [...fixed, ...half];
 }
 
-function ShiftDetailBlock({ mode, attendanceId, entry, onReload }) {
+function CommentThreadReplies({ record, shiftResponseKey }) {
+  const styles = useThemedStyles(createDetailStyles);
+  const thread = getCommentThreadForShiftKey(record, shiftResponseKey);
+  const replies = getCommentThreadReplies(thread);
+  if (replies.length === 0) {
+    return null;
+  }
+  return (
+    <View style={styles.threadBlock}>
+      <Text style={styles.commentLabel}>Thread</Text>
+      {replies.map((message) => (
+        <View key={String(message.id)} style={styles.threadMessage}>
+          <View style={styles.threadMeta}>
+            <Text style={styles.threadAuthor}>{formatCommentThreadAuthorRole(message.authorRole)}</Text>
+            {message.createdAt ? (
+              <Text style={styles.threadTime}>{new Date(message.createdAt).toLocaleString()}</Text>
+            ) : null}
+          </View>
+          <Text style={styles.comment}>{message.text}</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function ShiftDetailBlock({ mode, attendanceId, entry, record, onReload }) {
   const { showSuccess, showError } = useToast();
   const styles = useThemedStyles(createDetailStyles);
   const { key, shift } = entry;
@@ -131,6 +161,7 @@ function ShiftDetailBlock({ mode, attendanceId, entry, onReload }) {
         {shift.comment?.trim() ? shift.comment.trim() : 'No comment provided.'}
       </Text>
       <WorkPicturesRow shift={shift} />
+      <CommentThreadReplies record={record} shiftResponseKey={key} />
       <FormError message={error} />
       {canVerify ? (
         <PrimaryButton title="Verify shift" onPress={confirmVerify} loading={busy} />
@@ -253,6 +284,7 @@ export default function AttendanceRecordDetailScreen() {
           mode={mode}
           attendanceId={attendanceId}
           entry={entry}
+          record={record}
           onReload={refreshAfterAction}
         />
       ))}
@@ -301,6 +333,18 @@ function createDetailStyles(colors) {
       marginTop: 4,
     },
     comment: { fontSize: 14, color: colors.onSurface, lineHeight: 20 },
+    threadBlock: { marginTop: 8, gap: 8 },
+    threadMessage: {
+      padding: 10,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.outlineVariant,
+      backgroundColor: colors.surfaceContainerLowest ?? colors.card,
+      gap: 4,
+    },
+    threadMeta: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
+    threadAuthor: { fontSize: 12, fontWeight: '700', color: colors.primary },
+    threadTime: { fontSize: 11, color: colors.onSurfaceVariant },
     logSection: { marginTop: 20, marginBottom: 24 },
     logTitle: { fontSize: 17, fontWeight: '600', color: colors.onSurface, marginBottom: 8 },
     logEmpty: { fontSize: 14, color: colors.onSurfaceVariant },
