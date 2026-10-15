@@ -14,7 +14,7 @@
         "EXPO_PUBLIC_WEB_ORIGIN": "https://workzenapps.in",
         "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "129004661399-rq4hebgg6qsfm8pqiavpjvggdkb3ha82.apps.googleusercontent.com",
         "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "129004661399-6a0dp0a3281fm9krefavak3oqtsg54vv.apps.googleusercontent.com",
-        "EXPO_PUBLIC_WEB_APP_LINK_HOST": "workzen.in"
+        "EXPO_PUBLIC_APP_LINK_HOSTS": "workzenapps.in,www.workzenapps.in"
       },
       "android": {
         "buildType": "apk"
@@ -26,7 +26,7 @@
         "EXPO_PUBLIC_WEB_ORIGIN": "https://workzenapps.in",
         "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "129004661399-rq4hebgg6qsfm8pqiavpjvggdkb3ha82.apps.googleusercontent.com",
         "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "129004661399-6a0dp0a3281fm9krefavak3oqtsg54vv.apps.googleusercontent.com",
-        "EXPO_PUBLIC_WEB_APP_LINK_HOST": "workzen.in"
+        "EXPO_PUBLIC_APP_LINK_HOSTS": "workzenapps.in,www.workzenapps.in"
       },
       "android": {
         "buildType": "app-bundle"

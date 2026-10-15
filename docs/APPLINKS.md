@@ -7,10 +7,11 @@ Production invite emails use `https://<your-domain>/invite/member|employee?token
 In `workzen-mobile/.env` (used at build time via `app.config.js`):
 
 ```env
-EXPO_PUBLIC_WEB_ORIGIN=https://app.workzen.example
+EXPO_PUBLIC_WEB_ORIGIN=https://workzenapps.in
+EXPO_PUBLIC_APP_LINK_HOSTS=workzenapps.in,www.workzenapps.in
 ```
 
-This must match the host in your web `CLIENT_URL`. Rebuild the native app after changing it.
+Include **www** if your site redirects apex → www. Rebuild the native app after changing env.
 
 ## 2. Host `assetlinks.json`
 

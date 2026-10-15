@@ -14,6 +14,25 @@ function webAppLinkHost() {
   }
 }
 
+function appLinkHosts() {
+  const raw = process.env.EXPO_PUBLIC_APP_LINK_HOSTS;
+  if (raw?.trim()) {
+    return raw
+      .split(',')
+      .map((h) => h.trim())
+      .filter(Boolean);
+  }
+  const primary = webAppLinkHost();
+  if (!primary || primary === 'YOUR_WEB_DOMAIN') {
+    return [];
+  }
+  const hosts = new Set([primary]);
+  if (!primary.startsWith('www.')) {
+    hosts.add(`www.${primary}`);
+  }
+  return [...hosts];
+}
+
 function isLocalOrLanHost(host) {
   if (!host || host === 'YOUR_WEB_DOMAIN') return true;
   if (host === 'localhost' || host === '127.0.0.1') return true;
@@ -21,20 +40,17 @@ function isLocalOrLanHost(host) {
 }
 
 module.exports = ({ config }) => {
-  const host = webAppLinkHost();
-  const httpsAppLinks = isLocalOrLanHost(host)
-    ? []
-    : [
-        {
-          action: 'VIEW',
-          autoVerify: true,
-          data: [
-            { scheme: 'https', host, pathPrefix: '/invite/member' },
-            { scheme: 'https', host, pathPrefix: '/invite/employee' },
-          ],
-          category: ['BROWSABLE', 'DEFAULT'],
-        },
-      ];
+  const hosts = appLinkHosts().filter((h) => !isLocalOrLanHost(h));
+
+  const httpsAppLinks = hosts.map((host) => ({
+    action: 'VIEW',
+    autoVerify: true,
+    data: [
+      { scheme: 'https', host, pathPrefix: '/invite/member' },
+      { scheme: 'https', host, pathPrefix: '/invite/employee' },
+    ],
+    category: ['BROWSABLE', 'DEFAULT'],
+  }));
 
   return {
     ...config,
@@ -51,7 +67,7 @@ module.exports = ({ config }) => {
     },
     extra: {
       ...config.extra,
-      webAppLinkHost: host,
+      webAppLinkHosts: hosts,
     },
   };
 };

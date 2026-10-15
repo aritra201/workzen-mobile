@@ -15,11 +15,13 @@ export default function GoogleSignInButton({ onIdToken, loading, disabled }) {
   const styles = useThemedStyles(createStyles);
   const [error, setError] = useState('');
   const webClientId = getGoogleWebClientId();
-  const androidClientId = getGoogleAndroidClientId() || webClientId;
+  const androidClientId = getGoogleAndroidClientId();
 
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId: webClientId,
-    androidClientId,
+    webClientId,
+    androidClientId: androidClientId || undefined,
+    iosClientId: webClientId,
   });
 
   useEffect(() => {
