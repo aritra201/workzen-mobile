@@ -11,6 +11,7 @@
     "android": "expo start --android",
     "lint": "expo lint",
     "build:preview": "eas build -p android --profile preview --non-interactive",
+    "build:preview:queue": "eas build -p android --profile preview --non-interactive --no-wait",
     "build:production": "eas build -p android --profile production --non-interactive"
   },
   "dependencies": {

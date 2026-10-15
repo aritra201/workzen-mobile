@@ -24,7 +24,11 @@
         "backgroundColor": "#0b1628"
       }
     },
-    "plugins": ["expo-router", "expo-secure-store", "@react-native-community/datetimepicker"],
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "@react-native-community/datetimepicker"
+    ],
     "experiments": {
       "typedRoutes": true
     },
@@ -32,9 +36,11 @@
       "router": {
         "origin": false
       },
+      "webAppLinkHost": "workzen.in",
       "eas": {
-        "projectId": "replace-with-eas-project-id"
+        "projectId": "6bf2d0da-2c1f-4424-9a07-1a10f793b98c"
       }
-    }
+    },
+    "owner": "aritra007bera"
   }
 }
