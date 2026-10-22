@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Alert, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { inviteMember, listMembers, resendMemberInvite, updateMemberStatus } from '../../api/members';
@@ -27,6 +27,7 @@ export default function AdminMembersPanel() {
   const { showSuccess, showError } = useToast();
   const [members, setMembers] = useState([]);
   const [page, setPage] = useState(1);
+  const pageRef = useRef(1);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -35,28 +36,37 @@ export default function AdminMembersPanel() {
   const [form, setForm] = useState({ memberName: '', email: '' });
   const [busy, setBusy] = useState(false);
 
-  const load = useCallback(async (pageNum = page) => {
+  const load = useCallback(async (pageNum) => {
+    const targetPage = pageNum ?? pageRef.current;
     setLoading(true);
     setError('');
     try {
-      const data = await listMembers({ page: pageNum, limit: PAGE_SIZE });
+      const data = await listMembers({ page: targetPage, limit: PAGE_SIZE });
+      const resolvedPage = data.page ?? targetPage;
+      pageRef.current = resolvedPage;
       setMembers(data.items || data.members || []);
       setTotal(data.total ?? 0);
       setTotalPages(data.totalPages ?? 0);
-      setPage(data.page ?? pageNum);
+      setPage(resolvedPage);
     } catch (err) {
       setError(err.message);
       setMembers([]);
     } finally {
       setLoading(false);
     }
-  }, [page]);
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
-      load(1);
+      load(pageRef.current);
     }, [load])
   );
+
+  function handlePageChange(nextPage) {
+    pageRef.current = nextPage;
+    setPage(nextPage);
+    load(nextPage);
+  }
 
   async function handleInvite() {
     if (!form.memberName.trim() || !form.email.trim()) {
@@ -72,7 +82,7 @@ export default function AdminMembersPanel() {
       });
       setShowInvite(false);
       setForm({ memberName: '', email: '' });
-      await load(page);
+      await load(pageRef.current);
       showSuccess('Invitation sent.');
     } catch (err) {
       showError(err.message);
@@ -90,7 +100,7 @@ export default function AdminMembersPanel() {
         onPress: async () => {
           try {
             await updateMemberStatus(member.id, { isActive: next });
-            await load(page);
+            await load(pageRef.current);
             showSuccess(next ? 'Member activated.' : 'Member deactivated.');
           } catch (err) {
             showError(err.message);
@@ -105,7 +115,7 @@ export default function AdminMembersPanel() {
     setBusy(true);
     try {
       await resendMemberInvite({ email: member.email });
-      await load(page);
+      await load(pageRef.current);
       showSuccess('Invitation resent.');
     } catch (err) {
       showError(err.message);
@@ -173,7 +183,7 @@ export default function AdminMembersPanel() {
         totalPages={totalPages}
         total={total}
         loading={loading}
-        onPageChange={(p) => load(p)}
+        onPageChange={handlePageChange}
       />
     </View>
   );

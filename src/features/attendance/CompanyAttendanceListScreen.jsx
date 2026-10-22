@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { FlatList, Text } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { listCompanyAttendance } from '../../api/companyAttendance';
@@ -37,6 +37,7 @@ export default function CompanyAttendanceListScreen({
   const [employeeIds, setEmployeeIds] = useState([]);
   const [markedOnly, setMarkedOnly] = useState(false);
   const [page, setPage] = useState(1);
+  const pageRef = useRef(1);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [records, setRecords] = useState([]);
@@ -44,7 +45,8 @@ export default function CompanyAttendanceListScreen({
   const [error, setError] = useState('');
 
   const load = useCallback(
-    async ({ pageNum = page, from, to, marked = markedOnly, employees = employeeIds } = {}) => {
+    async ({ pageNum, from, to, marked = markedOnly, employees = employeeIds } = {}) => {
+      const targetPage = pageNum ?? pageRef.current;
       setLoading(true);
       setError('');
       try {
@@ -52,7 +54,7 @@ export default function CompanyAttendanceListScreen({
           startDate: from ?? startDate,
           endDate: to ?? endDate,
           limit: PAGE_SIZE,
-          page: pageNum,
+          page: targetPage,
           fresh: true,
         };
         if (statusFilter) params.status = statusFilter;
@@ -60,10 +62,12 @@ export default function CompanyAttendanceListScreen({
         if (employeeIdParam) params.employeeId = employeeIdParam;
         if (marked) params.markedAttendance = 'true';
         const data = await listCompanyAttendance(params);
+        const resolvedPage = data.page ?? targetPage;
+        pageRef.current = resolvedPage;
         setRecords(getListItems(data));
         setTotal(data.total ?? 0);
         setTotalPages(data.totalPages ?? 0);
-        setPage(data.page ?? pageNum);
+        setPage(resolvedPage);
       } catch (err) {
         setError(err.message);
         setRecords([]);
@@ -73,16 +77,17 @@ export default function CompanyAttendanceListScreen({
         setLoading(false);
       }
     },
-    [startDate, endDate, markedOnly, employeeIds, page, statusFilter]
+    [startDate, endDate, markedOnly, employeeIds, statusFilter]
   );
 
   useFocusEffect(
     useCallback(() => {
-      load({ pageNum: 1 });
+      load({ pageNum: pageRef.current });
     }, [load])
   );
 
   function handleApply() {
+    pageRef.current = 1;
     setPage(1);
     load({ pageNum: 1, from: startDate, to: endDate, marked: markedOnly, employees: employeeIds });
   }
@@ -93,6 +98,7 @@ export default function CompanyAttendanceListScreen({
     setEndDate(range.endDate);
     setMarkedOnly(false);
     setEmployeeIds([]);
+    pageRef.current = 1;
     setPage(1);
     load({
       pageNum: 1,
@@ -104,6 +110,7 @@ export default function CompanyAttendanceListScreen({
   }
 
   function handlePageChange(nextPage) {
+    pageRef.current = nextPage;
     setPage(nextPage);
     load({ pageNum: nextPage });
   }

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { decideUnlockRequest, listUnlockRequestsAdmin } from '../../src/api/unlockRequests';
@@ -25,45 +25,55 @@ export default function AdminUnlockScreen() {
   const styles = useThemedStyles(createStyles);
   const [requests, setRequests] = useState([]);
   const [page, setPage] = useState(1);
+  const pageRef = useRef(1);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [deciding, setDeciding] = useState(null);
 
-  const load = useCallback(async (pageNum = page) => {
+  const load = useCallback(async (pageNum) => {
+    const targetPage = pageNum ?? pageRef.current;
     setLoading(true);
     setError('');
     try {
       const data = await listUnlockRequestsAdmin({
         status: 'pending',
-        page: pageNum,
+        page: targetPage,
         limit: PAGE_SIZE,
       });
+      const resolvedPage = data.page ?? targetPage;
+      pageRef.current = resolvedPage;
       setRequests(data.requests || []);
       setTotal(data.total ?? 0);
       setTotalPages(data.totalPages ?? 0);
-      setPage(data.page ?? pageNum);
+      setPage(resolvedPage);
     } catch (err) {
       setError(err.message);
       setRequests([]);
     } finally {
       setLoading(false);
     }
-  }, [page]);
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
-      load(1);
+      load(pageRef.current);
     }, [load])
   );
+
+  function handlePageChange(nextPage) {
+    pageRef.current = nextPage;
+    setPage(nextPage);
+    load(nextPage);
+  }
 
   async function decide(row, status) {
     setDeciding({ id: row.id, status });
     setError('');
     try {
       await decideUnlockRequest({ attendanceId: row.attendanceId, status });
-      await load(page);
+      await load(pageRef.current);
       showSuccess(status === 'approved' ? 'Request approved.' : 'Request denied.');
     } catch (err) {
       setError(err.message);
@@ -118,7 +128,7 @@ export default function AdminUnlockScreen() {
             totalPages={totalPages}
             total={total}
             loading={loading}
-            onPageChange={(p) => load(p)}
+            onPageChange={handlePageChange}
           />
         </>
       )}

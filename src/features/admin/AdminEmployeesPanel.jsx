@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Alert, Modal, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import {
@@ -38,6 +38,7 @@ export default function AdminEmployeesPanel() {
   const [employees, setEmployees] = useState([]);
   const [filterEmployeeIds, setFilterEmployeeIds] = useState([]);
   const [page, setPage] = useState(1);
+  const pageRef = useRef(1);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -50,18 +51,21 @@ export default function AdminEmployeesPanel() {
   const [amountEditError, setAmountEditError] = useState('');
 
   const load = useCallback(
-    async (pageNum = page, selectedIds = filterEmployeeIds) => {
+    async (pageNum, selectedIds = filterEmployeeIds) => {
+      const targetPage = pageNum ?? pageRef.current;
       setLoading(true);
       setError('');
       try {
-        const params = { page: pageNum, limit: PAGE_SIZE };
+        const params = { page: targetPage, limit: PAGE_SIZE };
         const employeeId = employeeIdsQueryParam(selectedIds);
         if (employeeId) params.employeeId = employeeId;
         const data = await listEmployees(params);
+        const resolvedPage = data.page ?? targetPage;
+        pageRef.current = resolvedPage;
         setEmployees(data.items || data.employees || []);
         setTotal(data.total ?? 0);
         setTotalPages(data.totalPages ?? 0);
-        setPage(data.page ?? pageNum);
+        setPage(resolvedPage);
       } catch (err) {
         setError(err.message);
         setEmployees([]);
@@ -69,18 +73,25 @@ export default function AdminEmployeesPanel() {
         setLoading(false);
       }
     },
-    [page, filterEmployeeIds]
+    [filterEmployeeIds]
   );
 
   useFocusEffect(
     useCallback(() => {
-      load(1, []);
-    }, [load])
+      load(pageRef.current, filterEmployeeIds);
+    }, [load, filterEmployeeIds])
   );
 
   function handleApplyFilter() {
+    pageRef.current = 1;
     setPage(1);
     load(1, filterEmployeeIds);
+  }
+
+  function handlePageChange(nextPage) {
+    pageRef.current = nextPage;
+    setPage(nextPage);
+    load(nextPage, filterEmployeeIds);
   }
 
   async function handleInvite() {
@@ -103,7 +114,7 @@ export default function AdminEmployeesPanel() {
       });
       setShowInvite(false);
       setForm({ employeeName: '', employeeEmail: '', dailyAmount: '' });
-      await load(page, filterEmployeeIds);
+      await load(pageRef.current, filterEmployeeIds);
       showSuccess('Invitation sent.');
     } catch (err) {
       showError(err.message);
@@ -124,7 +135,7 @@ export default function AdminEmployeesPanel() {
           onPress: async () => {
             try {
               await patchEmployee(employee.employeeId, { isActive: next });
-              await load(page, filterEmployeeIds);
+              await load(pageRef.current, filterEmployeeIds);
               showSuccess(next ? 'Employee activated.' : 'Employee deactivated.');
             } catch (err) {
               showError(err.message);
@@ -159,7 +170,7 @@ export default function AdminEmployeesPanel() {
     try {
       await patchEmployee(amountEdit.employeeId, { dailyAmount: amountCheck.value });
       setAmountEdit(null);
-      await load(page, filterEmployeeIds);
+      await load(pageRef.current, filterEmployeeIds);
       showSuccess('Daily amount updated.');
     } catch (err) {
       showError(err.message);
@@ -173,7 +184,7 @@ export default function AdminEmployeesPanel() {
     setBusy(true);
     try {
       await resendEmployeeInvite({ employeeEmail: employee.employeeEmail });
-      await load(page, filterEmployeeIds);
+      await load(pageRef.current, filterEmployeeIds);
       showSuccess('Invitation resent.');
     } catch (err) {
       showError(err.message);
@@ -264,7 +275,7 @@ export default function AdminEmployeesPanel() {
         totalPages={totalPages}
         total={total}
         loading={loading}
-        onPageChange={(p) => load(p, filterEmployeeIds)}
+        onPageChange={handlePageChange}
       />
 
       <Modal

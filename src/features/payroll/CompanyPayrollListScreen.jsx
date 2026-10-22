@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { FlatList, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { downloadPayrollCsv, listPayroll } from '../../api/payroll';
@@ -48,6 +48,7 @@ export default function CompanyPayrollListScreen({
   const [employeeIds, setEmployeeIds] = useState([]);
   const [markedOnly, setMarkedOnly] = useState(false);
   const [page, setPage] = useState(1);
+  const pageRef = useRef(1);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [summary, setSummary] = useState(null);
@@ -56,7 +57,8 @@ export default function CompanyPayrollListScreen({
   const [error, setError] = useState('');
   const [exporting, setExporting] = useState(false);
   const load = useCallback(
-    async ({ pageNum = page, from, to, employees = employeeIds, marked = markedOnly } = {}) => {
+    async ({ pageNum, from, to, employees = employeeIds, marked = markedOnly } = {}) => {
+      const targetPage = pageNum ?? pageRef.current;
       setLoading(true);
       setError('');
       try {
@@ -64,7 +66,7 @@ export default function CompanyPayrollListScreen({
           startDate: from ?? startDate,
           endDate: to ?? endDate,
           limit: PAGE_SIZE,
-          page: pageNum,
+          page: targetPage,
         };
         if (!employeeScope) {
           const employeeIdParam = employeeIdsQueryParam(employees);
@@ -72,11 +74,13 @@ export default function CompanyPayrollListScreen({
         }
         if (marked) params.markedAttendance = 'true';
         const data = await listPayroll(params);
+        const resolvedPage = data.page ?? targetPage;
+        pageRef.current = resolvedPage;
         setRecords(data.items || []);
         setSummary(data.summary || null);
         setTotal(data.total ?? 0);
         setTotalPages(data.totalPages ?? 0);
-        setPage(data.page ?? pageNum);
+        setPage(resolvedPage);
       } catch (err) {
         setError(err.message);
         setRecords([]);
@@ -85,16 +89,17 @@ export default function CompanyPayrollListScreen({
         setLoading(false);
       }
     },
-    [startDate, endDate, page, employeeIds, markedOnly, employeeScope]
+    [startDate, endDate, employeeIds, markedOnly, employeeScope]
   );
 
   useFocusEffect(
     useCallback(() => {
-      load({ pageNum: 1 });
+      load({ pageNum: pageRef.current });
     }, [load])
   );
 
   function handleApply() {
+    pageRef.current = 1;
     setPage(1);
     load({ pageNum: 1, from: startDate, to: endDate, employees: employeeIds, marked: markedOnly });
   }
@@ -123,6 +128,7 @@ export default function CompanyPayrollListScreen({
     setEndDate(range.endDate);
     setEmployeeIds([]);
     setMarkedOnly(false);
+    pageRef.current = 1;
     setPage(1);
     load({
       pageNum: 1,
@@ -131,6 +137,12 @@ export default function CompanyPayrollListScreen({
       employees: [],
       marked: false,
     });
+  }
+
+  function handlePageChange(nextPage) {
+    pageRef.current = nextPage;
+    setPage(nextPage);
+    load({ pageNum: nextPage });
   }
 
   const rangeLabel = attendanceListRangeLabel(page, PAGE_SIZE, total);
@@ -217,10 +229,7 @@ export default function CompanyPayrollListScreen({
             totalPages={totalPages}
             total={total}
             loading={loading}
-            onPageChange={(p) => {
-              setPage(p);
-              load({ pageNum: p });
-            }}
+            onPageChange={handlePageChange}
           />
         </>
       )}
