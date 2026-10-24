@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { resetPassword } from '../../src/api/auth';
 import TextField from '../../src/components/TextField';
+import OtpInput from '../../src/components/OtpInput';
 import PrimaryButton from '../../src/components/PrimaryButton';
 import FormError from '../../src/components/FormError';
 import AuthFormCard from '../../src/components/AuthFormCard';
@@ -12,14 +13,30 @@ import { useThemedStyles } from '../../src/theme/useThemedStyles';
 
 export default function ResetPasswordScreen() {
   const params = useLocalSearchParams();
-  const initialEmail = typeof params.email === 'string' ? params.email : params.email?.[0] || '';
   const router = useRouter();
   const styles = useThemedStyles(createStyles);
-  const [email, setEmail] = useState(initialEmail);
+  const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const resolved =
+      typeof params.email === 'string' ? params.email.trim() : (params.email?.[0] || '').trim();
+    if (!resolved) {
+      router.replace('/(auth)/forgot-password');
+      return;
+    }
+    setEmail(resolved);
+  }, [params.email, router]);
+
+  function handleResend() {
+    router.push({
+      pathname: '/(auth)/forgot-password',
+      params: { email: email.trim() },
+    });
+  }
 
   async function handleSubmit() {
     if (!email.trim()) {
@@ -38,20 +55,40 @@ export default function ResetPasswordScreen() {
     }
   }
 
+  if (!email) {
+    return null;
+  }
+
   return (
     <AuthScreenScroll align="top">
       <View style={styles.stack}>
         <BackButton label="Back" onPress={() => router.back()} />
-        <AuthFormCard
-          showBranding={false}
-          title="Reset password"
-          subtitle="Enter the code from your email and choose a new password."
-        >
+        <AuthFormCard showBranding={false} title="Enter reset code">
+          <Text style={styles.subtitle}>
+            We sent a code to <Text style={styles.emailBold}>{email}</Text>. Enter it below with your
+            new password.
+          </Text>
           <FormError message={error} />
-          <TextField label="Work email" icon="email" tone="auth" value={email} onChangeText={setEmail} keyboardType="email-address" />
-          <TextField label="Reset code" tone="auth" value={otp} onChangeText={setOtp} keyboardType="number-pad" />
-          <TextField label="New password" icon="lock" tone="auth" value={newPassword} onChangeText={setNewPassword} secureTextEntry />
-          <PrimaryButton title="Update password" compact onPress={handleSubmit} loading={loading} />
+          <Text style={styles.otpLabel}>Reset code</Text>
+          <OtpInput value={otp} onChange={setOtp} disabled={loading} />
+          <TextField
+            label="New password"
+            icon="lock"
+            tone="auth"
+            value={newPassword}
+            onChangeText={setNewPassword}
+            secureTextEntry
+          />
+          <PrimaryButton
+            title="Update password"
+            compact
+            onPress={handleSubmit}
+            loading={loading}
+            disabled={otp.length < 4 || newPassword.length < 8}
+          />
+          <Pressable onPress={handleResend} hitSlop={8} style={styles.resendWrap}>
+            <Text style={styles.resendLink}>Didn&apos;t receive the code? Resend</Text>
+          </Pressable>
           <Text style={styles.footer}>
             <Link href="/(auth)/login" style={styles.footerLink}>Back to sign in</Link>
           </Text>
@@ -67,7 +104,33 @@ function createStyles(colors) {
       width: '100%',
       gap: 12,
     },
-    footer: { marginTop: 16, textAlign: 'center', fontSize: 14, color: colors.onSurfaceVariant },
+    subtitle: {
+      fontSize: 14,
+      lineHeight: 20,
+      color: colors.onSurfaceVariant,
+      marginBottom: 16,
+    },
+    emailBold: {
+      fontWeight: '700',
+      color: colors.onSurface,
+    },
+    otpLabel: {
+      fontSize: 12,
+      fontWeight: '600',
+      color: colors.onSurface,
+      marginBottom: 8,
+    },
+    resendWrap: {
+      marginTop: 20,
+      alignItems: 'center',
+    },
+    resendLink: {
+      fontSize: 14,
+      fontWeight: '700',
+      color: colors.primary,
+      textAlign: 'center',
+    },
+    footer: { marginTop: 12, textAlign: 'center', fontSize: 14, color: colors.onSurfaceVariant },
     footerLink: { fontWeight: '700', color: colors.primary },
   };
 }

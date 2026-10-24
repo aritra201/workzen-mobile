@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { forgotPassword } from '../../src/api/auth';
 import TextField from '../../src/components/TextField';
@@ -16,21 +16,19 @@ export default function ForgotPasswordScreen() {
   const styles = useThemedStyles(createStyles);
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const initial = typeof params.email === 'string' ? params.email : '';
+    const initial =
+      typeof params.email === 'string' ? params.email : params.email?.[0] || '';
     if (initial) setEmail(initial);
   }, [params.email]);
 
   async function handleSubmit() {
     setError('');
-    setMessage('');
     setLoading(true);
     try {
       await forgotPassword({ email: email.trim() });
-      setMessage('If an account exists, a reset code was sent to your email.');
       router.push({
         pathname: '/(auth)/reset-password',
         params: { email: email.trim() },
@@ -49,12 +47,11 @@ export default function ForgotPasswordScreen() {
         <AuthFormCard
           showBranding={false}
           title="Forgot password"
-          subtitle="Enter your work email and we will send a reset code."
+          subtitle="Enter your email and we'll send a reset code if an account exists."
         >
           <FormError message={error} />
-          {message ? <Text style={styles.success}>{message}</Text> : null}
           <TextField
-            label="Work email"
+            label="Email"
             icon="email"
             tone="auth"
             value={email}
@@ -74,6 +71,5 @@ function createStyles(colors) {
       width: '100%',
       gap: 12,
     },
-    success: { color: colors.primary, marginBottom: 12, marginTop: 4 },
   };
 }
