@@ -44,6 +44,10 @@ export default function AdminLayout() {
         name="team"
         options={{ title: 'Team', tabBarLabel: 'Team', tabBarIcon: tabIcon('groups') }}
       />
+      <Tabs.Screen
+        name="profile"
+        options={{ title: 'Company', tabBarLabel: 'Me', tabBarIcon: tabIcon('person') }}
+      />
       <Tabs.Screen name="company" options={{ href: null }} />
     </Tabs>
   );

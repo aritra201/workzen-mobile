@@ -75,8 +75,8 @@ export default function AdminDashboard() {
           onPress={() => router.push('/(admin)/unlock')}
         />
       </View>
-      <Pressable style={styles.linkRow} onPress={() => router.push('/(admin)/company')}>
-        <Text style={styles.linkText}>Company profile & password</Text>
+      <Pressable style={styles.linkRow} onPress={() => router.push('/(admin)/profile')}>
+        <Text style={styles.linkText}>Profile</Text>
       </Pressable>
       <Pressable style={styles.linkRow} onPress={() => router.push('/(admin)/attendance')}>
         <Text style={styles.linkText}>All attendance</Text>

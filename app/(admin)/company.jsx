@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { Image, View } from 'react-native';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect, useRouter, useSegments } from 'expo-router';
 import { pickImageFromLibrary } from '../../src/utils/pickImage';
 import {
   getCompanyProfile,
@@ -15,6 +15,7 @@ import BackButton from '../../src/components/BackButton';
 import TextField from '../../src/components/TextField';
 import PrimaryButton from '../../src/components/PrimaryButton';
 import ChangePasswordSection from '../../src/components/ChangePasswordSection';
+import ProfileLogoutButton from '../../src/components/ProfileLogoutButton';
 import LoadingState from '../../src/components/LoadingState';
 import FormError from '../../src/components/FormError';
 import { useToast } from '../../src/context/ToastContext';
@@ -58,7 +59,9 @@ function profileToForm(profile) {
 
 export default function AdminCompanyScreen() {
   const router = useRouter();
-  const { user } = useAuth();
+  const segments = useSegments();
+  const showBackButton = segments[segments.length - 1] === 'company';
+  const { user, logout } = useAuth();
   const { showSuccess, showError } = useToast();
   const styles = useThemedStyles(createStyles);
   const [form, setForm] = useState(EMPTY_FORM);
@@ -168,8 +171,8 @@ export default function AdminCompanyScreen() {
 
   return (
     <Screen>
-      <BackButton onPress={() => router.back()} />
-      <AppHeader title="Company" subtitle="Profile & security" showThemeToggle />
+      {showBackButton ? <BackButton onPress={() => router.back()} /> : null}
+      <AppHeader title="Company" subtitle="Profile & security" onLogout={logout} showThemeToggle />
       <FormError message={error} />
       <FormError message={phoneError} />
       <FilterCard compact>
@@ -249,6 +252,7 @@ export default function AdminCompanyScreen() {
         <PrimaryButton title="Save company" compact onPress={handleSave} loading={saving} />
       </FilterCard>
       <ChangePasswordSection authProvider={user?.auth_provider} userEmail={user?.email} />
+      <ProfileLogoutButton />
     </Screen>
   );
 }

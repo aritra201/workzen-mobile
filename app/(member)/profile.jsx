@@ -16,6 +16,7 @@ import FormError from '../../src/components/FormError';
 import FilterCard from '../../src/components/FilterCard';
 import { useAuth } from '../../src/auth/AuthContext';
 import ChangePasswordSection from '../../src/components/ChangePasswordSection';
+import ProfileLogoutButton from '../../src/components/ProfileLogoutButton';
 import { pickImageFromLibrary } from '../../src/utils/pickImage';
 import { useThemedStyles } from '../../src/theme/useThemedStyles';
 import { useToast } from '../../src/context/ToastContext';
@@ -100,6 +101,7 @@ export default function MemberProfileScreen() {
         <PrimaryButton title="Save changes" compact onPress={handleSave} loading={saving} />
       </FilterCard>
       <ChangePasswordSection authProvider={user?.auth_provider} userEmail={user?.email} />
+      <ProfileLogoutButton />
     </Screen>
   );
 }

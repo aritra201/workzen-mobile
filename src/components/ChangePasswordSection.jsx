@@ -1,18 +1,22 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
-import { changePassword } from '../api/auth';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { changePassword, fetchMe } from '../api/auth';
 import TextField from './TextField';
 import PrimaryButton from './PrimaryButton';
 import FormError from './FormError';
 import FilterCard from './FilterCard';
+import LoadingState from './LoadingState';
 import { useThemedStyles } from '../theme/useThemedStyles';
 import { useToast } from '../context/ToastContext';
 
-export default function ChangePasswordSection({ authProvider, userEmail }) {
+export default function ChangePasswordSection({ authProvider: authProviderProp, userEmail }) {
   const router = useRouter();
   const { showSuccess, showError } = useToast();
   const styles = useThemedStyles(createStyles);
+  const [authProvider, setAuthProvider] = useState(authProviderProp || null);
+  const [hasPassword, setHasPassword] = useState(false);
+  const [loadingMe, setLoadingMe] = useState(true);
   const [open, setOpen] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -21,16 +25,29 @@ export default function ChangePasswordSection({ authProvider, userEmail }) {
   const [message, setMessage] = useState('');
   const [saving, setSaving] = useState(false);
 
-  if (authProvider === 'google') {
-    return (
-      <FilterCard compact style={styles.wrap}>
-        <Text style={styles.heading}>Password</Text>
-        <Text style={styles.googleNote}>
-          You sign in with Google. Password is managed by your Google account.
-        </Text>
-      </FilterCard>
-    );
-  }
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      setLoadingMe(true);
+      fetchMe()
+        .then((me) => {
+          if (cancelled) return;
+          setAuthProvider(me.auth_provider || authProviderProp || 'local');
+          setHasPassword(Boolean(me.has_password));
+        })
+        .catch(() => {
+          if (!cancelled && authProviderProp) {
+            setAuthProvider(authProviderProp);
+          }
+        })
+        .finally(() => {
+          if (!cancelled) setLoadingMe(false);
+        });
+      return () => {
+        cancelled = true;
+      };
+    }, [authProviderProp])
+  );
 
   function goForgotPassword() {
     router.push({
@@ -38,6 +55,8 @@ export default function ChangePasswordSection({ authProvider, userEmail }) {
       params: userEmail ? { email: userEmail } : undefined,
     });
   }
+
+  const showGoogleOnly = authProvider === 'google' && !hasPassword;
 
   async function handleSave() {
     setError('');
@@ -58,6 +77,7 @@ export default function ChangePasswordSection({ authProvider, userEmail }) {
     try {
       await changePassword({ currentPassword, newPassword });
       setMessage('');
+      setHasPassword(true);
       showSuccess('Password updated.');
       setCurrentPassword('');
       setNewPassword('');
@@ -69,6 +89,31 @@ export default function ChangePasswordSection({ authProvider, userEmail }) {
     } finally {
       setSaving(false);
     }
+  }
+
+  if (loadingMe) {
+    return (
+      <FilterCard compact style={styles.wrap}>
+        <LoadingState label="Loading account…" />
+      </FilterCard>
+    );
+  }
+
+  if (showGoogleOnly) {
+    return (
+      <FilterCard compact style={styles.wrap}>
+        <Text style={styles.heading}>Password</Text>
+        <Text style={styles.googleNote}>
+          You sign in with Google. Your Google account password is managed at Google. If you also sign in with
+          email, you can reset your WorkZen password below.
+        </Text>
+        <View style={styles.actionsRow}>
+          <Pressable onPress={goForgotPassword} hitSlop={8}>
+            <Text style={styles.forgotLink}>Forgot password?</Text>
+          </Pressable>
+        </View>
+      </FilterCard>
+    );
   }
 
   return (
@@ -131,7 +176,7 @@ function createStyles(colors) {
     wrap: { marginTop: 8 },
     heading: { fontSize: 16, fontWeight: '700', color: colors.onSurface, marginBottom: 4 },
     hint: { fontSize: 13, color: colors.onSurfaceVariant, marginBottom: 12 },
-    googleNote: { fontSize: 13, color: colors.onSurfaceVariant, lineHeight: 20 },
+    googleNote: { fontSize: 13, color: colors.onSurfaceVariant, lineHeight: 20, marginBottom: 12 },
     actionsRow: {
       flexDirection: 'row',
       flexWrap: 'wrap',

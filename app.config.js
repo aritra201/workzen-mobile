@@ -39,8 +39,23 @@ function isLocalOrLanHost(host) {
   return /^192\.168\.|^10\.|^172\.(1[6-9]|2\d|3[01])\./.test(host);
 }
 
+function cleanEnv(value) {
+  if (!value || typeof value !== 'string') return '';
+  return value.replace(/^['"]|['"]$/g, '').trim();
+}
+
+function googleOAuthScheme(androidClientId) {
+  const id = cleanEnv(androidClientId);
+  if (!id) return null;
+  const bare = id.replace(/\.apps\.googleusercontent\.com$/i, '');
+  return bare ? `com.googleusercontent.apps.${bare}` : null;
+}
+
 module.exports = ({ config }) => {
   const hosts = appLinkHosts().filter((h) => !isLocalOrLanHost(h));
+  const googleScheme =
+    googleOAuthScheme(process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID) ||
+    'com.googleusercontent.apps.129004661399-6a0dp0a3281fm9krefavak3oqtsg54vv';
 
   const httpsAppLinks = hosts.map((host) => ({
     action: 'VIEW',
@@ -54,12 +69,21 @@ module.exports = ({ config }) => {
 
   return {
     ...config,
+    plugins: [
+      ...(config.plugins || []),
+      ['@react-native-google-signin/google-signin', { iosUrlScheme: googleScheme }],
+    ],
     android: {
       ...config.android,
       intentFilters: [
         {
           action: 'VIEW',
           data: [{ scheme: config.scheme || 'workzen', host: 'invite', pathPrefix: '/' }],
+          category: ['BROWSABLE', 'DEFAULT'],
+        },
+        {
+          action: 'VIEW',
+          data: [{ scheme: googleScheme, path: '/oauth2redirect' }],
           category: ['BROWSABLE', 'DEFAULT'],
         },
         ...httpsAppLinks,

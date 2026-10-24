@@ -2,12 +2,11 @@
   "expo": {
     "name": "WorkZen",
     "slug": "workzen-mobile",
-    "version": "1.0.0",
+    "version": "1.0.58",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "workzen",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -15,10 +14,12 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.workzen.mobile"
+      "bundleIdentifier": "com.workzen.mobile",
+      "buildNumber": "58"
     },
     "android": {
       "package": "com.workzen.mobile",
+      "versionCode": 58,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0b1628"
