@@ -1,8 +1,15 @@
-export function formatDateLabel(dateKey) {
+export function formatDateLabel(dateKey, options = {}) {
   if (!dateKey) return '—';
   const d = new Date(`${dateKey}T12:00:00`);
   if (Number.isNaN(d.getTime())) return dateKey;
-  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  const { weekday, ...intlOptions } = options;
+  return d.toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    ...(weekday ? { weekday: 'long' } : {}),
+    ...intlOptions,
+  });
 }
 
 export function formatCurrencyInr(amount) {

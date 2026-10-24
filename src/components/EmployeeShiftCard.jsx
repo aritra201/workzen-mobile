@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
+import { Alert, Text, View } from 'react-native';
 import { confirmShift, updateShiftDetails } from '../api/attendance';
 import EmployeeShiftWorkPictures from './EmployeeShiftWorkPictures';
+import AccordionSection from './AccordionSection';
 import { getSubmitGeoLocation } from '../utils/geolocation';
 import {
   isShiftDetailsLockedForEmployee,
@@ -31,6 +32,7 @@ export default function EmployeeShiftCard({
   attendance,
   attendanceDate,
   label,
+  accordionId,
   onUpdated,
 }) {
   const { showSuccess, showError } = useToast();
@@ -53,7 +55,13 @@ export default function EmployeeShiftCard({
   const hasAmount =
     shift?.amount != null && !Number.isNaN(Number(shift.amount)) && Number(shift.amount) > 0;
 
-  async function handleConfirm() {
+  const headerSubtitle = marked
+    ? hasAmount
+      ? formatCurrencyInr(shift.amount)
+      : 'Marked — amount from profile'
+    : 'Tap to expand · confirm when you worked this shift';
+
+  async function runConfirm() {
     setBusy(true);
     setError('');
     try {
@@ -67,6 +75,17 @@ export default function EmployeeShiftCard({
     } finally {
       setBusy(false);
     }
+  }
+
+  function promptConfirm() {
+    Alert.alert(
+      'Confirm shift?',
+      `Confirm ${title} for today? Your profile amount will be applied and sent for verification. Location is required.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Yes, confirm', onPress: runConfirm },
+      ]
+    );
   }
 
   async function handleSaveComment() {
@@ -85,19 +104,38 @@ export default function EmployeeShiftCard({
   }
 
   return (
-    <View style={styles.card}>
-      <View style={styles.header}>
-        <Text style={styles.title}>{title}</Text>
+    <AccordionSection
+      accordionId={accordionId ?? shiftKey}
+      title={title}
+      subtitle={headerSubtitle}
+      trailing={
         <StatusChip tone={statusTone(shift?.status, locked)}>
           {statusLabel(shift?.status, locked)}
         </StatusChip>
-      </View>
-      <FormError message={error} />
-      {marked ? (
+      }
+      headerActions={
+        !disabled && !marked ? (
+          <PrimaryButton title="Confirm" compact onPress={promptConfirm} loading={busy} />
+        ) : null
+      }
+    >
+      {!marked ? (
+        <Text style={styles.help}>
+          Confirm this shift if you worked it. Your daily amount from your profile will be applied
+          automatically and sent for verification. You can add an optional comment or photos after
+          confirming.
+        </Text>
+      ) : (
         <>
-          <Text style={styles.amount}>
-            {hasAmount ? formatCurrencyInr(shift.amount) : 'Amount from profile'}
-          </Text>
+          <View style={styles.amountBox}>
+            <Text style={styles.amountLabel}>Shift amount (from profile)</Text>
+            <Text style={styles.amountValue}>
+              {hasAmount ? formatCurrencyInr(shift.amount) : '—'}
+            </Text>
+            <Text style={styles.amountHint}>
+              Set by your company admin. You do not enter this amount per shift.
+            </Text>
+          </View>
           <TextField
             label="Work comment (optional)"
             value={comment}
@@ -106,7 +144,7 @@ export default function EmployeeShiftCard({
             editable={!disabled}
           />
           {!disabled && commentDirty ? (
-            <PrimaryButton title="Save comment" loading={busy} onPress={handleSaveComment} />
+            <PrimaryButton title="Save comment" compact loading={busy} onPress={handleSaveComment} />
           ) : null}
           <EmployeeShiftWorkPictures
             shift={shift}
@@ -123,29 +161,39 @@ export default function EmployeeShiftCard({
             onSuccess={() => showSuccess('Photos updated.')}
           />
         </>
-      ) : !locked ? (
-        <PrimaryButton title={`Confirm ${title}`} loading={busy} onPress={handleConfirm} />
-      ) : (
-        <Text style={styles.hint}>Locked — request unlock to edit.</Text>
       )}
-    </View>
+      <FormError message={error} />
+    </AccordionSection>
   );
 }
 
 function createStyles(colors) {
   return {
-    card: {
-      backgroundColor: colors.card,
-      borderRadius: 12,
-      padding: 16,
-      marginBottom: 12,
-      borderWidth: 1,
-      borderColor: colors.outlineVariant,
-      gap: 8,
+    help: {
+      fontSize: 14,
+      lineHeight: 20,
+      color: colors.onSurfaceVariant,
     },
-    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 },
-    title: { fontSize: 16, fontWeight: '600', color: colors.onSurface, flex: 1 },
-    amount: { fontSize: 15, color: colors.onSurfaceVariant },
-    hint: { fontSize: 13, color: colors.onSurfaceVariant },
+    amountBox: {
+      backgroundColor: colors.surfaceContainerLow,
+      borderRadius: 10,
+      padding: 12,
+      gap: 4,
+    },
+    amountLabel: {
+      fontSize: 12,
+      fontWeight: '600',
+      color: colors.onSurfaceVariant,
+    },
+    amountValue: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: colors.onSurface,
+    },
+    amountHint: {
+      fontSize: 11,
+      color: colors.onSurfaceVariant,
+      marginTop: 2,
+    },
   };
 }
