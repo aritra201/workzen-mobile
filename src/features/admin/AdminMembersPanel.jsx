@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { Alert, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
-import { inviteMember, listMembers, resendMemberInvite, updateMemberStatus } from '../../api/members';
+import { inviteMember, listMembers, resendMemberInvite, cancelMemberInvite, updateMemberStatus } from '../../api/members';
 import { attendanceListRangeLabel } from '../../utils/companyAttendanceList';
 import TextField from '../../components/TextField';
 import PrimaryButton from '../../components/PrimaryButton';
@@ -110,6 +110,32 @@ export default function AdminMembersPanel() {
     ]);
   }
 
+  function promptCancelInvite(member) {
+    Alert.alert(
+      'Cancel invitation?',
+      `Remove the pending invite for ${member.name || member.email}? They will be removed from your list until you invite again.`,
+      [
+        { text: 'Keep invite', style: 'cancel' },
+        {
+          text: 'Cancel invitation',
+          style: 'destructive',
+          onPress: async () => {
+            setBusy(true);
+            try {
+              await cancelMemberInvite({ email: member.email });
+              await load(pageRef.current);
+              showSuccess('Invitation cancelled.');
+            } catch (err) {
+              showError(err.message);
+            } finally {
+              setBusy(false);
+            }
+          },
+        },
+      ]
+    );
+  }
+
   async function handleResend(member) {
     setError('');
     setBusy(true);
@@ -173,6 +199,9 @@ export default function AdminMembersPanel() {
                     title: m.isActive ? 'Deactivate' : 'Activate',
                     onPress: () => toggleActive(m),
                   }
+            }
+            secondaryAction={
+              !m.userId ? { title: 'Cancel invite', onPress: () => promptCancelInvite(m) } : null
             }
           />
         );

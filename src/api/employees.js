@@ -29,6 +29,13 @@ export function resendEmployeeInvite(body) {
   });
 }
 
+export function cancelEmployeeInvite(body) {
+  return apiRequest('/api/employees/invitations/cancel', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+
 export function listPresentEmployees(params = {}) {
   const search = new URLSearchParams(params).toString();
   const qs = search ? `?${search}` : '';

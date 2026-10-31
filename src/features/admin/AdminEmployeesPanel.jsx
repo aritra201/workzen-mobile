@@ -6,6 +6,7 @@ import {
   listEmployees,
   patchEmployee,
   resendEmployeeInvite,
+  cancelEmployeeInvite,
 } from '../../api/employees';
 import { formatCurrencyInr } from '../../utils/format';
 import { employeeIdsQueryParam } from '../../utils/employeeIds';
@@ -179,6 +180,32 @@ export default function AdminEmployeesPanel() {
     }
   }
 
+  function promptCancelInvite(employee) {
+    Alert.alert(
+      'Cancel invitation?',
+      `Remove the pending invite for ${employee.employeeName || employee.employeeEmail}? They will be removed from your list until you invite again.`,
+      [
+        { text: 'Keep invite', style: 'cancel' },
+        {
+          text: 'Cancel invitation',
+          style: 'destructive',
+          onPress: async () => {
+            setBusy(true);
+            try {
+              await cancelEmployeeInvite({ employeeEmail: employee.employeeEmail });
+              await load(pageRef.current, filterEmployeeIds);
+              showSuccess('Invitation cancelled.');
+            } catch (err) {
+              showError(err.message);
+            } finally {
+              setBusy(false);
+            }
+          },
+        },
+      ]
+    );
+  }
+
   async function handleResend(employee) {
     setError('');
     setBusy(true);
@@ -254,9 +281,9 @@ export default function AdminEmployeesPanel() {
             status={status}
             meta={`Daily: ${emp.dailyAmount != null ? formatCurrencyInr(emp.dailyAmount) : '—'}`}
             secondaryAction={
-              emp.userId
-                ? { title: 'Edit daily amount', onPress: () => openAmountEdit(emp) }
-                : null
+              !emp.userId
+                ? { title: 'Cancel invite', onPress: () => promptCancelInvite(emp) }
+                : { title: 'Edit daily amount', onPress: () => openAmountEdit(emp) }
             }
             primaryAction={
               !emp.userId

@@ -24,6 +24,13 @@ export function resendMemberInvite(body) {
   });
 }
 
+export function cancelMemberInvite(body) {
+  return apiRequest('/api/members/invitations/cancel', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+
 export function updateMemberStatus(memberId, body) {
   return apiRequest(`/api/members/${memberId}`, {
     method: 'PATCH',
