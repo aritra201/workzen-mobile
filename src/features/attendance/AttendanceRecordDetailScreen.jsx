@@ -50,13 +50,9 @@ function activityLogKey(log, index) {
 
 function buildShiftEntries(shifts) {
   if (!shifts) return [];
-  const fixed = Object.entries(shifts)
+  return Object.entries(shifts)
     .filter(([key, shift]) => key !== 'halfShifts' && Boolean(shift))
     .map(([key, shift]) => ({ key, shift }));
-  const half = (shifts.halfShifts || [])
-    .filter((h) => h?.marked)
-    .map((h) => ({ key: h.shiftKey, shift: h }));
-  return [...fixed, ...half];
 }
 
 function CommentThreadReplies({ record, shiftResponseKey }) {

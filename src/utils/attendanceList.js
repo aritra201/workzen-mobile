@@ -31,7 +31,7 @@ export function sumShiftAmounts(shifts) {
 
 export function shiftStatusSummary(shifts) {
   const parts = [];
-  const keys = ['day', 'night', 'extraDay', 'extraNight'];
+  const keys = ['day', 'night', 'extraDay', 'extraNight', 'halfShiftDay', 'halfShiftNight'];
   for (const key of keys) {
     const s = shifts?.[key];
     if (s?.marked) parts.push(key);

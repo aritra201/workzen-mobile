@@ -27,7 +27,7 @@ export function shiftsCountedForAttendanceStatus(shifts) {
   const counted = {};
   for (const [key, shift] of Object.entries(shifts || {})) {
     if (!shift || key === 'halfShifts') continue;
-    if (key === 'extraDay' || key === 'extraNight') {
+    if (key === 'extraDay' || key === 'extraNight' || key === 'halfShiftDay' || key === 'halfShiftNight') {
       if (shift.marked) counted[key] = shift;
       continue;
     }
@@ -35,7 +35,13 @@ export function shiftsCountedForAttendanceStatus(shifts) {
   }
   for (const half of shifts?.halfShifts || []) {
     if (half?.marked && half.shiftKey) {
-      counted[half.shiftKey] = half;
+      const responseKey =
+        half.shiftKey === 'half_shift_day' || half.shiftKey === 'half_shift_1'
+          ? 'halfShiftDay'
+          : half.shiftKey === 'half_shift_night' || half.shiftKey === 'half_shift_2'
+            ? 'halfShiftNight'
+            : half.shiftKey;
+      counted[responseKey] = half;
     }
   }
   return counted;

@@ -7,21 +7,19 @@ export function shiftFromResponse(attendance, shiftKey) {
 }
 
 export function listMarkAttendanceShiftItems(attendance) {
-  const fixedOrder = [SHIFT_KEY.DAY, SHIFT_KEY.NIGHT, SHIFT_KEY.EXTRA_DAY, SHIFT_KEY.EXTRA_NIGHT];
-  const fixed = fixedOrder.map((shiftKey) => ({
+  const fixedOrder = [
+    SHIFT_KEY.DAY,
+    SHIFT_KEY.NIGHT,
+    SHIFT_KEY.EXTRA_DAY,
+    SHIFT_KEY.EXTRA_NIGHT,
+    SHIFT_KEY.HALF_SHIFT_DAY,
+    SHIFT_KEY.HALF_SHIFT_NIGHT,
+  ];
+  return fixedOrder.map((shiftKey) => ({
     shiftKey,
     shift: shiftFromResponse(attendance, shiftKey),
     accordionId: shiftKey,
   }));
-
-  const half = (attendance?.shifts?.halfShifts ?? []).map((entry) => ({
-    shiftKey: entry.shiftKey,
-    shift: entry?.marked ? entry : { ...entry, status: undefined },
-    label: entry.shiftKey?.replace(/_/g, ' ') || 'Half shift',
-    accordionId: entry.shiftKey,
-  }));
-
-  return [...fixed, ...half];
 }
 
 export function isShiftDetailsLockedForEmployee(shift, attendance) {

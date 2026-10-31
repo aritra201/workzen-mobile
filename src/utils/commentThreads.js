@@ -1,15 +1,24 @@
-import { parseHalfShiftSlot } from './halfShifts';
+import { isHalfShiftKey, normalizeHalfShiftApiKey } from './halfShifts';
+import { responseKeyToApiShiftKey } from './shiftLabels';
 
 export function getCommentThreadForShiftKey(record, shiftResponseKey) {
   const threads = record?.commentThreads;
   if (!threads) {
     return null;
   }
-  if (parseHalfShiftSlot(shiftResponseKey)) {
-    const list = threads.halfShifts || [];
-    return list.find((t) => t?.shiftKey === shiftResponseKey) ?? null;
+
+  if (threads[shiftResponseKey]) {
+    return threads[shiftResponseKey];
   }
-  return threads[shiftResponseKey] ?? null;
+
+  const apiKey = responseKeyToApiShiftKey(shiftResponseKey);
+  if (isHalfShiftKey(apiKey)) {
+    const normalized = normalizeHalfShiftApiKey(apiKey);
+    const legacyList = threads.halfShifts || [];
+    return legacyList.find((t) => normalizeHalfShiftApiKey(t?.shiftKey) === normalized) ?? null;
+  }
+
+  return null;
 }
 
 export function getCommentThreadReplies(commentThread) {
@@ -21,11 +30,7 @@ export function getCommentThreadReplies(commentThread) {
 }
 
 export function formatCommentThreadAuthorRole(authorRole) {
-  if (authorRole === 'admin') {
-    return 'Admin';
-  }
-  if (authorRole === 'employee') {
-    return 'Employee';
-  }
+  if (authorRole === 'admin') return 'Admin';
+  if (authorRole === 'employee') return 'Employee';
   return authorRole ? String(authorRole) : 'User';
 }

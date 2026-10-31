@@ -1,11 +1,13 @@
 import { SHIFT_KEY, SHIFT_META, SHIFT_STATUS } from '../constants/shifts';
-import { getShiftDisplayMeta } from './halfShifts';
+import { getShiftDisplayMeta, isHalfShiftKey, normalizeHalfShiftApiKey } from './halfShifts';
 
 const RESPONSE_KEY_TO_SHIFT_KEY = {
   day: SHIFT_KEY.DAY,
   night: SHIFT_KEY.NIGHT,
   extraDay: SHIFT_KEY.EXTRA_DAY,
   extraNight: SHIFT_KEY.EXTRA_NIGHT,
+  halfShiftDay: SHIFT_KEY.HALF_SHIFT_DAY,
+  halfShiftNight: SHIFT_KEY.HALF_SHIFT_NIGHT,
 };
 
 export function formatShiftResponseKey(responseKey) {
@@ -54,8 +56,8 @@ export function shiftStatusChipTone(status) {
 }
 
 export function responseKeyToApiShiftKey(responseKey) {
-  if (typeof responseKey === 'string' && responseKey.startsWith('half_shift_')) {
-    return responseKey;
+  if (isHalfShiftKey(responseKey)) {
+    return normalizeHalfShiftApiKey(responseKey);
   }
   return RESPONSE_KEY_TO_SHIFT_KEY[responseKey] ?? responseKey;
 }

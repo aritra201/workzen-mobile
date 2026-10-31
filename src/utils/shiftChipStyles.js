@@ -19,7 +19,11 @@ export function shiftChipStyle(responseKey, isDark) {
 }
 
 function resolvePaletteKey(responseKey) {
-  if (typeof responseKey === 'string' && responseKey.startsWith('half_shift_')) {
+  if (
+    responseKey === 'halfShiftDay' ||
+    responseKey === 'halfShiftNight' ||
+    (typeof responseKey === 'string' && responseKey.startsWith('half_shift_'))
+  ) {
     return 'halfShift';
   }
   if (responseKey === 'extraDay' || responseKey === 'extra_day') return 'extraDay';
