@@ -2,7 +2,7 @@
   "expo": {
     "name": "WorkZen",
     "slug": "workzen-mobile",
-    "version": "1.0.58",
+    "version": "1.0.59",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "workzen",
@@ -15,11 +15,16 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.workzen.mobile",
-      "buildNumber": "58"
+      "buildNumber": "59"
     },
     "android": {
       "package": "com.workzen.mobile",
-      "versionCode": 58,
+      "versionCode": 59,
+      "splash": {
+        "image": "./assets/splash-icon.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#0b1628"
+      },
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0b1628"
@@ -27,6 +32,19 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 280,
+          "resizeMode": "contain",
+          "backgroundColor": "#0b1628",
+          "dark": {
+            "image": "./assets/splash-icon.png",
+            "backgroundColor": "#0b1628"
+          }
+        }
+      ],
       "expo-secure-store",
       "@react-native-community/datetimepicker"
     ],
