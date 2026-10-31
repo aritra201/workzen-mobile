@@ -9,6 +9,20 @@ export function getAttendanceEmployeeProfilePicture(row) {
   return row?.employee?.profilePicture ?? row?.employee?.profile_picture ?? null;
 }
 
+export function countMarkedShifts(shifts) {
+  return Object.keys(shiftsCountedForAttendanceStatus(shifts)).length;
+}
+
+export function countPayrollShifts(row) {
+  if (row?.shiftCount != null && !Number.isNaN(Number(row.shiftCount))) {
+    return Number(row.shiftCount);
+  }
+  if (Array.isArray(row?.shifts)) {
+    return row.shifts.length;
+  }
+  return 0;
+}
+
 export function shiftsCountedForAttendanceStatus(shifts) {
   const counted = {};
   for (const [key, shift] of Object.entries(shifts || {})) {

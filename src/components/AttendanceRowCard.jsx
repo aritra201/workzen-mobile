@@ -4,6 +4,8 @@ import {
   getAttendanceEmployeeName,
   getAttendanceEmployeeProfilePicture,
   sumShiftAmountsFromShifts,
+  countMarkedShifts,
+  countPayrollShifts,
 } from '../utils/companyAttendanceList';
 import MobileListCard from './MobileListCard';
 import PersonAvatar from './PersonAvatar';
@@ -15,6 +17,7 @@ export default function AttendanceRowCard({ row, onPress, variant = 'company' })
   const styles = useThemedStyles(createStyles);
   const employeeName = getAttendanceEmployeeName(row);
   const totalAmount = sumShiftAmountsFromShifts(row.shifts);
+  const shiftCount = countMarkedShifts(row.shifts);
   const isEmployeeView = variant === 'employee';
 
   const content = (
@@ -41,7 +44,7 @@ export default function AttendanceRowCard({ row, onPress, variant = 'company' })
         </View>
       )}
       <View style={styles.shiftsBlock}>
-        <Text style={styles.shiftsLabel}>SHIFTS</Text>
+        <Text style={styles.shiftsLabel}>SHIFTS · {shiftCount}</Text>
         <AttendanceShiftStatusPairs shifts={row.shifts} />
       </View>
       <Text style={styles.amount}>

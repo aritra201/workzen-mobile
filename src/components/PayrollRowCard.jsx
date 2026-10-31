@@ -3,6 +3,7 @@ import { formatCurrencyInr, formatDateLabel } from '../utils/format';
 import {
   getAttendanceEmployeeName,
   getAttendanceEmployeeProfilePicture,
+  countPayrollShifts,
 } from '../utils/companyAttendanceList';
 import MobileListCard from './MobileListCard';
 import PersonAvatar from './PersonAvatar';
@@ -12,6 +13,7 @@ import { useThemedStyles } from '../theme/useThemedStyles';
 export default function PayrollRowCard({ row, onPress, employeeScope = false }) {
   const styles = useThemedStyles(createStyles);
   const employeeName = getAttendanceEmployeeName(row);
+  const shiftCount = countPayrollShifts(row);
   const dayTotal =
     row.dayTotal != null
       ? row.dayTotal
@@ -41,6 +43,7 @@ export default function PayrollRowCard({ row, onPress, employeeScope = false }) 
         </View>
       )}
       <View style={styles.shiftsBlock}>
+        <Text style={styles.shiftsLabel}>SHIFTS · {shiftCount}</Text>
         <PayrollShiftAmountList shifts={row.shifts} />
       </View>
       <Text style={styles.dayTotal}>
@@ -60,6 +63,13 @@ function createStyles(colors) {
     name: { fontSize: 16, fontWeight: '700', color: colors.onSurface },
     date: { fontSize: 14, color: colors.onSurfaceVariant, marginTop: 2 },
     dateOnly: { fontSize: 16, fontWeight: '700', color: colors.onSurface },
+    shiftsLabel: {
+      fontSize: 10,
+      fontWeight: '700',
+      letterSpacing: 0.8,
+      color: colors.outline,
+      marginBottom: 6,
+    },
     shiftsBlock: { marginTop: 12 },
     dayTotal: {
       marginTop: 12,
