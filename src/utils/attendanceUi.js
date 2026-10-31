@@ -30,6 +30,14 @@ export function isShiftDetailsLockedForEmployee(shift, attendance) {
   return status === SHIFT_STATUS.VERIFIED || status === SHIFT_STATUS.REJECTED;
 }
 
+export function canEmployeeCancelShift(shift, attendance) {
+  if (!shift?.marked || attendance?.lockAttendance || attendance?.canEdit === false) {
+    return false;
+  }
+  const status = shift?.status;
+  return status !== SHIFT_STATUS.VERIFIED && status !== SHIFT_STATUS.REJECTED;
+}
+
 export function statusLabel(status, lockAttendance) {
   if (lockAttendance) return 'Locked';
   switch (status) {

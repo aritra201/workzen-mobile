@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Alert, Text, View } from 'react-native';
-import { confirmShift, updateShiftDetails } from '../api/attendance';
+import { confirmShift, cancelShift, updateShiftDetails } from '../api/attendance';
 import EmployeeShiftWorkPictures from './EmployeeShiftWorkPictures';
 import AccordionSection from './AccordionSection';
 import { getSubmitGeoLocation } from '../utils/geolocation';
 import {
+  canEmployeeCancelShift,
   isShiftDetailsLockedForEmployee,
   shiftDisplayLabel,
   statusLabel,
@@ -49,6 +50,7 @@ export default function EmployeeShiftCard({
   const locked = attendance?.lockAttendance || !attendance?.canEdit;
   const detailsLocked = isShiftDetailsLockedForEmployee(shift, attendance);
   const disabled = locked || detailsLocked;
+  const canCancel = canEmployeeCancelShift(shift, attendance);
   const title = label || shiftDisplayLabel(shiftKey);
   const savedComment = String(shift?.comment || '').trim();
   const commentDirty = comment.trim() !== savedComment;
@@ -86,6 +88,32 @@ export default function EmployeeShiftCard({
         { text: 'Yes, confirm', onPress: runConfirm },
       ]
     );
+  }
+
+  function promptCancel() {
+    Alert.alert(
+      'Cancel shift?',
+      `Remove your confirmation for ${title}? You can confirm again if you still worked this shift. Comments and photos for this shift will be cleared.`,
+      [
+        { text: 'Keep shift', style: 'cancel' },
+        { text: 'Cancel shift', style: 'destructive', onPress: handleCancelShift },
+      ]
+    );
+  }
+
+  async function handleCancelShift() {
+    setBusy(true);
+    setError('');
+    try {
+      await cancelShift({ shiftKey, attendanceDate });
+      await onUpdated();
+      showSuccess('Shift confirmation removed.');
+    } catch (err) {
+      setError(err.message);
+      showError(err.message);
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function handleSaveComment() {
@@ -145,6 +173,15 @@ export default function EmployeeShiftCard({
           />
           {!disabled && commentDirty ? (
             <PrimaryButton title="Save comment" compact loading={busy} onPress={handleSaveComment} />
+          ) : null}
+          {canCancel ? (
+            <PrimaryButton
+              title="Cancel shift"
+              variant="outline"
+              compact
+              loading={busy}
+              onPress={promptCancel}
+            />
           ) : null}
           <EmployeeShiftWorkPictures
             shift={shift}

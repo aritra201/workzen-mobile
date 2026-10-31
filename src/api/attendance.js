@@ -28,6 +28,14 @@ export function confirmShift(body, options) {
   });
 }
 
+export function cancelShift(options) {
+  return apiRequest('/api/attendance/me/today/shifts/cancel', {
+    method: 'POST',
+    headers: attendanceHeaders(options),
+    body: JSON.stringify({}),
+  });
+}
+
 export function submitShift(body, options) {
   return apiRequest('/api/attendance/me/today/shifts/submit', {
     method: 'PUT',
