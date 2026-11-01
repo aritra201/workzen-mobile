@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../src/auth/AuthContext';
 import { COMPANY_ROLE } from '../../src/constants/roles';
 import LoadingState from '../../src/components/LoadingState';
+import CompanyNameGate from '../../src/components/CompanyNameGate';
 import { useTheme } from '../../src/theme/ThemeContext';
 import { getTabScreenOptions, tabIcon } from '../../src/theme/tabBar';
 
@@ -19,7 +20,8 @@ export default function AdminLayout() {
   const screenOptions = getTabScreenOptions(colors, { bottomInset: insets.bottom });
 
   return (
-    <Tabs screenOptions={screenOptions}>
+    <CompanyNameGate>
+      <Tabs screenOptions={screenOptions}>
       <Tabs.Screen
         name="dashboard"
         options={{ title: 'Home', tabBarLabel: 'Home', tabBarIcon: tabIcon('home') }}
@@ -50,5 +52,6 @@ export default function AdminLayout() {
       />
       <Tabs.Screen name="company" options={{ href: null }} />
     </Tabs>
+    </CompanyNameGate>
   );
 }
