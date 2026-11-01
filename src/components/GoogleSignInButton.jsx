@@ -33,6 +33,7 @@ function GoogleSignInBrowserButton({ onIdToken, loading, disabled }) {
     clientId: webClientId,
     webClientId,
     redirectUri,
+    selectAccount: true,
   });
 
   useEffect(() => {
@@ -110,6 +111,12 @@ function GoogleSignInNativeButton({ onIdToken, loading, disabled }) {
     setBusy(true);
     try {
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      // Clear cached Google account so Android shows the full account picker (not last-used only).
+      try {
+        await GoogleSignin.signOut();
+      } catch {
+        // No prior Google session for this app.
+      }
       const result = await GoogleSignin.signIn();
       if (result.type === 'cancelled') {
         return;
