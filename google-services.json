@@ -1,0 +1,150 @@
+{
+  "project_info": {
+    "project_number": "196413861041",
+    "project_id": "lawsikho-push-platform",
+    "storage_bucket": "lawsikho-push-platform.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:196413861041:android:a4a99b0b0265d9bcb80690",
+        "android_client_info": {
+          "package_name": "com.lawsikho.flash"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "196413861041-7j0ko8o2t6epd7sf62ncntmu2e8075nh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDT5OIEkbEQ1VaFLV3uVbDIQayMsrzhfk8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "196413861041-7j0ko8o2t6epd7sf62ncntmu2e8075nh.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "196413861041-kahjtgeljm0imta3geud4aihkqumlgm2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "dev.lawsikho.lawsikho-frontend-development"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:196413861041:android:07e2961490bdc4feb80690",
+        "android_client_info": {
+          "package_name": "com.lawsikho.microlearningapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "196413861041-3a9dk7jleht17beqr406ojpvdhsghquh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.lawsikho.microlearningapp",
+            "certificate_hash": "d1d547a89d94f0597eff72cdfc3650694066c194"
+          }
+        },
+        {
+          "client_id": "196413861041-7vmtcurdeb76obdjfppm6stof59j5oke.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.lawsikho.microlearningapp",
+            "certificate_hash": "9979335a24e0305574a5cf8bbcb393ef3c5fc5e1"
+          }
+        },
+        {
+          "client_id": "196413861041-drqu6fj14sv9i1jh2k942p4nlb3r1is5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.lawsikho.microlearningapp",
+            "certificate_hash": "663fbb323b3cc8d50dfc652dc057d8c11f2e2153"
+          }
+        },
+        {
+          "client_id": "196413861041-ov6vcbad9rla9u2unna09nbihtpjg305.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.lawsikho.microlearningapp",
+            "certificate_hash": "95cc07dfa49c77213743ad2e17e7fe6468b72996"
+          }
+        },
+        {
+          "client_id": "196413861041-7j0ko8o2t6epd7sf62ncntmu2e8075nh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDT5OIEkbEQ1VaFLV3uVbDIQayMsrzhfk8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "196413861041-7j0ko8o2t6epd7sf62ncntmu2e8075nh.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "196413861041-kahjtgeljm0imta3geud4aihkqumlgm2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "dev.lawsikho.lawsikho-frontend-development"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:196413861041:android:dab80cb0fcf18184b80690",
+        "android_client_info": {
+          "package_name": "com.workzen.mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "196413861041-7j0ko8o2t6epd7sf62ncntmu2e8075nh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDT5OIEkbEQ1VaFLV3uVbDIQayMsrzhfk8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "196413861041-7j0ko8o2t6epd7sf62ncntmu2e8075nh.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "196413861041-kahjtgeljm0imta3geud4aihkqumlgm2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "dev.lawsikho.lawsikho-frontend-development"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -76,6 +76,8 @@ module.exports = ({ config }) => {
     ],
     android: {
       ...config.android,
+      // Required for getDevicePushTokenAsync() — download from Firebase (see docs/FCM-ANDROID.md).
+      googleServicesFile: './google-services.json',
       intentFilters: [
         {
           action: 'VIEW',
