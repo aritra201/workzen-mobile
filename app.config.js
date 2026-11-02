@@ -72,6 +72,7 @@ module.exports = ({ config }) => {
     plugins: [
       ...(config.plugins || []),
       ['@react-native-google-signin/google-signin', { iosUrlScheme: googleScheme }],
+      'expo-notifications',
     ],
     android: {
       ...config.android,
