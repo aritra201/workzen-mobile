@@ -4,6 +4,7 @@ import { Stack, useRouter } from 'expo-router';
 import * as Linking from 'expo-linking';
 import { StatusBar } from 'expo-status-bar';
 import { AuthProvider } from '../src/auth/AuthContext';
+import PushNotificationBootstrap from '../src/fcm/PushNotificationBootstrap';
 import { ToastProvider } from '../src/context/ToastContext';
 import { ThemeProvider, useTheme } from '../src/theme/ThemeContext';
 import { parseInvitationUrl, invitationRouteForKind } from '../src/utils/inviteLinks';
@@ -47,6 +48,7 @@ export default function RootLayout() {
     <ThemeProvider>
       <ToastProvider>
         <AuthProvider>
+          <PushNotificationBootstrap />
           <RootStack />
         </AuthProvider>
       </ToastProvider>
