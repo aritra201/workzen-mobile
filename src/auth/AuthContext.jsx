@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { fetchMe } from '../api/auth';
 import { clearTokens, getAccessToken, setTokens } from '../utils/storage';
 import { pickPrimaryMembership } from '../utils/membership';
+import { syncWorkzenPushRegistration } from '../fcm/registerPush';
 
 const AuthContext = createContext(null);
 
@@ -13,6 +14,7 @@ export function AuthProvider({ children }) {
   const applySession = useCallback((me) => {
     setUser(me);
     setMemberships(me?.memberships || []);
+    void syncWorkzenPushRegistration();
   }, []);
 
   const clearSession = useCallback(() => {
