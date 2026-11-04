@@ -9,10 +9,16 @@
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
+    "ios": "expo start --ios",
     "lint": "expo lint",
     "build:preview": "eas build -p android --profile preview --non-interactive",
     "build:preview:queue": "eas build -p android --profile preview --non-interactive --no-wait",
     "build:production": "eas build -p android --profile production --non-interactive",
+    "build:preview:ios": "eas build -p ios --profile preview --non-interactive",
+    "build:preview:ios:setup": "eas build -p ios --profile preview",
+    "build:preview:ios:queue": "eas build -p ios --profile preview --non-interactive --no-wait",
+    "build:production:ios": "eas build -p ios --profile production --non-interactive",
+    "build:production:ios:setup": "eas build -p ios --profile production",
     "assets:brand": "node scripts/generate-brand-assets.js"
   },
   "dependencies": {

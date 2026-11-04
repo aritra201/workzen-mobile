@@ -44,8 +44,8 @@ function cleanEnv(value) {
   return value.replace(/^['"]|['"]$/g, '').trim();
 }
 
-function googleOAuthScheme(androidClientId) {
-  const id = cleanEnv(androidClientId);
+function googleOAuthSchemeFromClientId(clientId) {
+  const id = cleanEnv(clientId);
   if (!id) return null;
   const bare = id.replace(/\.apps\.googleusercontent\.com$/i, '');
   return bare ? `com.googleusercontent.apps.${bare}` : null;
@@ -53,9 +53,12 @@ function googleOAuthScheme(androidClientId) {
 
 module.exports = ({ config }) => {
   const hosts = appLinkHosts().filter((h) => !isLocalOrLanHost(h));
-  const googleScheme =
-    googleOAuthScheme(process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID) ||
+  const androidGoogleScheme =
+    googleOAuthSchemeFromClientId(process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID) ||
     'com.googleusercontent.apps.129004661399-6a0dp0a3281fm9krefavak3oqtsg54vv';
+  const iosGoogleScheme =
+    googleOAuthSchemeFromClientId(process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID) ||
+    androidGoogleScheme;
 
   const httpsAppLinks = hosts.map((host) => ({
     action: 'VIEW',
@@ -71,7 +74,7 @@ module.exports = ({ config }) => {
     ...config,
     plugins: [
       ...(config.plugins || []),
-      ['@react-native-google-signin/google-signin', { iosUrlScheme: googleScheme }],
+      ['@react-native-google-signin/google-signin', { iosUrlScheme: iosGoogleScheme }],
       'expo-notifications',
     ],
     android: {
@@ -86,7 +89,7 @@ module.exports = ({ config }) => {
         },
         {
           action: 'VIEW',
-          data: [{ scheme: googleScheme, path: '/oauth2redirect' }],
+          data: [{ scheme: androidGoogleScheme, path: '/oauth2redirect' }],
           category: ['BROWSABLE', 'DEFAULT'],
         },
         ...httpsAppLinks,
@@ -95,6 +98,13 @@ module.exports = ({ config }) => {
     extra: {
       ...config.extra,
       webAppLinkHosts: hosts,
+    },
+    ios: {
+      ...config.ios,
+      infoPlist: {
+        ...(config.ios?.infoPlist || {}),
+        ITSAppUsesNonExemptEncryption: false,
+      },
     },
   };
 };

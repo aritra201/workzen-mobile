@@ -1,12 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Image, NativeModules, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Image, NativeModules, Platform, Pressable, Text, View } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import {
   canUseNativeGoogleSignIn,
   expoGoGoogleRedirectUri,
 } from '../utils/googleAuthRedirect';
-import { getGoogleWebClientId, isGoogleSignInConfigured } from '../utils/googleClient';
+import {
+  getGoogleAndroidClientId,
+  getGoogleIosClientId,
+  getGoogleWebClientId,
+  isGoogleSignInConfigured,
+} from '../utils/googleClient';
 import { useTheme } from '../theme/ThemeContext';
 import { useThemedStyles } from '../theme/useThemedStyles';
 
@@ -29,9 +34,14 @@ function GoogleSignInBrowserButton({ onIdToken, loading, disabled }) {
   const webClientId = getGoogleWebClientId();
   const redirectUri = useMemo(() => expoGoGoogleRedirectUri(), []);
 
+  const iosClientId = getGoogleIosClientId();
+  const androidClientId = getGoogleAndroidClientId();
+
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId: webClientId,
     webClientId,
+    iosClientId: iosClientId || undefined,
+    androidClientId: androidClientId || undefined,
     redirectUri,
     selectAccount: true,
   });
@@ -92,26 +102,36 @@ function GoogleSignInNativeButton({ onIdToken, loading, disabled }) {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const webClientId = getGoogleWebClientId();
+  const iosClientId = getGoogleIosClientId();
   const GoogleSignin = useMemo(() => loadNativeGoogleSignin(), []);
 
   useEffect(() => {
     if (!GoogleSignin || !webClientId) return;
-    GoogleSignin.configure({
+    const config = {
       webClientId,
       offlineAccess: false,
-    });
-  }, [GoogleSignin, webClientId]);
+    };
+    if (Platform.OS === 'ios' && iosClientId) {
+      config.iosClientId = iosClientId;
+    }
+    GoogleSignin.configure(config);
+  }, [GoogleSignin, webClientId, iosClientId]);
 
   const handlePress = useCallback(async () => {
     if (!GoogleSignin) {
       setError('Rebuild and reinstall the app (npm run build:preview).');
       return;
     }
+    if (Platform.OS === 'ios' && !iosClientId) {
+      setError('Set EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID in EAS env and rebuild the iOS app.');
+      return;
+    }
     setError('');
     setBusy(true);
     try {
-      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-      // Clear cached Google account so Android shows the full account picker (not last-used only).
+      if (Platform.OS === 'android') {
+        await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      }
       try {
         await GoogleSignin.signOut();
       } catch {
@@ -136,7 +156,7 @@ function GoogleSignInNativeButton({ onIdToken, loading, disabled }) {
     } finally {
       setBusy(false);
     }
-  }, [GoogleSignin, onIdToken]);
+  }, [GoogleSignin, iosClientId, onIdToken]);
 
   return (
     <GoogleSignInUi
@@ -144,7 +164,7 @@ function GoogleSignInNativeButton({ onIdToken, loading, disabled }) {
       disabled={disabled}
       loading={loading || busy}
       error={error}
-      ready={Boolean(GoogleSignin && webClientId)}
+      ready={Boolean(GoogleSignin && webClientId && (Platform.OS !== 'ios' || iosClientId))}
       onPress={handlePress}
     />
   );

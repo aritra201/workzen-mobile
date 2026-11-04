@@ -12,6 +12,11 @@ export function getGoogleAndroidClientId() {
   return cleanEnv(process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID);
 }
 
+/** iOS OAuth client ID (Google Cloud → iOS app, bundle `com.workzen.mobile`). */
+export function getGoogleIosClientId() {
+  return cleanEnv(process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID);
+}
+
 export function isGoogleSignInConfigured() {
   return getGoogleWebClientId().length > 0;
 }
